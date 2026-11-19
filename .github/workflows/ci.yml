@@ -17,8 +17,8 @@ jobs:
       - name: 2. Configurar PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, ctype, fileinfo, openssl, PDO, bcmath, tokenizer, xml
+          php-version: '8.4'
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, sqlite, pdo_sqlite, bcmath, tokenizer, xml
           coverage: none
 
       - name: 3. Copiar archivo de entorno
@@ -30,15 +30,20 @@ jobs:
       - name: 5. Generar llave de la aplicación
         run: php artisan key:generate
 
-      - name: 6. Configurar Node.js
+      - name: 6. Crear base de datos SQLite y ejecutar migraciones
+        run: |
+          touch database/database.sqlite
+          php artisan migrate --force
+
+      - name: 7. Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: 7. Build (Frontend)
+      - name: 8. Build (Frontend)
         run: |
           npm install
           npm run build
 
-      - name: 8. Ejecutar Pruebas
+      - name: 9. Ejecutar Pruebas
         run: php artisan test
