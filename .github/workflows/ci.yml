@@ -1,0 +1,44 @@
+name: Laravel CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Descargar código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, ctype, fileinfo, openssl, PDO, bcmath, tokenizer, xml
+          coverage: none
+
+      - name: 3. Copiar archivo de entorno
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: 4. Instalar dependencias de Composer
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: 5. Generar llave de la aplicación
+        run: php artisan key:generate
+
+      - name: 6. Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 7. Build (Frontend)
+        run: |
+          npm install
+          npm run build
+
+      - name: 8. Ejecutar Pruebas
+        run: php artisan test
