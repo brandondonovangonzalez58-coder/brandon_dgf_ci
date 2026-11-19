@@ -13,7 +13,6 @@ class ExampleTest extends TestCase
     {
         $response = $this->get(route('home'));
 
-        // Cambiamos esto para forzar el error
-        $response->assertNotFound(); 
+        $response->assertOk();
     }
 }
